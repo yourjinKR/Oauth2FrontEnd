@@ -1,0 +1,198 @@
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.brand-logo {
+  font-size: 28px;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.login-header p {
+  color: #666;
+  margin-bottom: 32px;
+  font-size: 14px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-field {
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fafafa;
+}
+
+.login-submit-button {
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #333;
+  color: white;
+  font-weight: 600;
+  cursor: not-allowed;
+  margin-top: 8px;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.find-link {
+  text-decoration: none;
+  color: #888;
+}
+
+.divider {
+  margin: 24px 0;
+  position: relative;
+  border-bottom: 1px solid #eee;
+}
+
+.divider span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 0 12px;
+  font-size: 12px;
+  color: #bbb;
+}
+
+.kakao-login-button-styled {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.kakao-login-button-styled:hover {
+  transform: translateY(-2px);
+}
+
+.kakao-login-button-styled img {
+  width: 100%;
+  max-width: 300px;
+}
+
+.signup-prompt {
+  margin-top: 24px;
+  font-size: 13px;
+  color: #666;
+}
+
+.signup-link {
+  color: #333;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Profile styles */
+.profile-container {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 16px;
+  border: 4px solid #FEE500;
+}
+
+.logout-button {
+  background-color: #f5f5f5;
+  color: #666;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.loading-spinner {
+  margin: 20px auto;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #FEE500;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.login-option {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-option span {
+  font-size: 12px;
+  color: #888;
+  font-weight: 600;
+}
+
+.divider-small {
+  height: 1px;
+  background-color: #eee;
+  margin: 10px 0;
+}
+
+.custom-kakao-button {
+  background-color: #FEE500;
+  color: #3c1e1e;
+  width: 100%;
+  max-width: 300px;
+  padding: 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.spring-button {
+  width: 100%;
+}
