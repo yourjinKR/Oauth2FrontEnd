@@ -17,6 +17,10 @@
   width: 90%;
 }
 
+.login-card h2 {
+  color: #333;
+}
+
 .brand-logo {
   font-size: 28px;
   font-weight: 800;
@@ -99,6 +103,12 @@
 
 .kakao-login-button-styled:hover {
   transform: translateY(-2px);
+}
+
+.kakao-login-button-styled:disabled {
+  cursor: wait;
+  opacity: 0.6;
+  transform: none;
 }
 
 .kakao-login-button-styled img {
@@ -195,4 +205,83 @@
 
 .spring-button {
   width: 100%;
+}
+
+.error-message {
+  margin: 18px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f0;
+  color: #c62828;
+  font-size: 13px;
+}
+
+.result-card {
+  max-width: 480px;
+}
+
+.status-badge {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f2f3f5;
+  color: #666;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-badge.success {
+  background: #e8f7ee;
+  color: #1b7a42;
+}
+
+.status-badge.failed {
+  background: #fff1f0;
+  color: #c62828;
+}
+
+.result-message {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.result-details {
+  margin: 24px 0;
+  padding: 0;
+  border-top: 1px solid #eee;
+}
+
+.result-details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  text-align: left;
+}
+
+.result-details dt {
+  color: #888;
+}
+
+.result-details dd {
+  margin: 0;
+  color: #333;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.result-link {
+  display: block;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #333;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
 }

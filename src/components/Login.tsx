@@ -1,50 +1,82 @@
-import React from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  ACCESS_TOKEN_STORAGE_KEY,
+  API_BASE_URL,
+  type AuthResponse,
+  type CommonResponse,
+  LOGIN_METHOD_STORAGE_KEY,
+} from '../auth';
 
 interface LoginProps {
-  onSdkLoginSuccess: (authObj: any) => void;
+  onSdkLoginSuccess: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onSdkLoginSuccess }) => {
-  // Spring Boot Security default OAuth2 authorization endpoint
-  const SPRING_OAUTH2_URL = `http://localhost:8080/oauth2/authorization/kakao`;
+const Login = ({ onSdkLoginSuccess }: LoginProps) => {
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const springOAuth2Url = `${API_BASE_URL}/oauth2/authorization/kakao`;
 
   const handleSdkLogin = () => {
     if (!window.Kakao) {
-      alert('Kakao SDK가 로드되지 않았습니다.');
+      setErrorMessage('Kakao SDK가 로드되지 않았습니다.');
       return;
     }
 
     window.Kakao.Auth.login({
-      success: async (authObj: any) => {
-        console.log('SDK Login Success:', authObj);
-        try {
-      const response = await fetch('http://localhost:8080/sdk/oauth2/authorization/kakao', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          authObj: authObj
-        })
-      });
+      success: async (authObj: KakaoAuthObj) => {
+        setErrorMessage('');
+        setIsSubmitting(true);
 
-      if (response.ok) {
-        window.location.href = '/main';
-      }
-    } catch (err) {
-      console.error('Backend Auth Failed:', err);
-    }
-        onSdkLoginSuccess(authObj);
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/sdk/oauth2/authorization/kakao`,
+            {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ authObj }),
+            },
+          );
+          const result = (await response.json()) as CommonResponse<AuthResponse>;
+
+          if (!response.ok || !result.data?.accessToken) {
+            throw new Error(
+              result.error?.message ?? `SDK 백엔드 인증 실패: HTTP ${response.status}`,
+            );
+          }
+
+          sessionStorage.setItem(
+            ACCESS_TOKEN_STORAGE_KEY,
+            result.data.accessToken,
+          );
+          sessionStorage.setItem(LOGIN_METHOD_STORAGE_KEY, 'sdk');
+          onSdkLoginSuccess();
+          navigate('/auth/success?method=sdk');
+        } catch (error) {
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : 'SDK 백엔드 인증에 실패했습니다.',
+          );
+        } finally {
+          setIsSubmitting(false);
+        }
       },
-      fail: (err: any) => {
-        console.error('SDK Login Failed:', err);
+      fail: (error: unknown) => {
+        console.error('SDK Login Failed:', error);
+        setErrorMessage('카카오 SDK 로그인에 실패했습니다.');
       },
     });
   };
 
   const handleSpringLogin = () => {
-    // Redirect the entire page to the Spring Boot backend
-    window.location.href = SPRING_OAUTH2_URL;
+    sessionStorage.setItem(LOGIN_METHOD_STORAGE_KEY, 'oauth2');
+    window.location.assign(springOAuth2Url);
   };
 
   return (
@@ -55,34 +87,41 @@ const Login: React.FC<LoginProps> = ({ onSdkLoginSuccess }) => {
       </div>
 
       <div className="social-login-group">
-        {/* Option 1: JavaScript SDK (Popup) */}
         <div className="login-option">
-          <span>방법 1: JS SDK (프론트 단독)</span>
-          <button className="kakao-login-button-styled" onClick={handleSdkLogin}>
-            <img 
-              src="https://developers.kakao.com/tool/resource/static/img/button/login/full/ko/kakao_login_medium_narrow.png" 
-              alt="카카오 SDK 로그인" 
+          <span>방법 1: JS SDK + 백엔드 토큰 인증</span>
+          <button
+            className="kakao-login-button-styled"
+            disabled={isSubmitting}
+            onClick={handleSdkLogin}
+          >
+            <img
+              src="https://developers.kakao.com/tool/resource/static/img/button/login/full/ko/kakao_login_medium_narrow.png"
+              alt="카카오 SDK 로그인"
             />
           </button>
         </div>
 
-        <div className="divider-small"></div>
+        <div className="divider-small" />
 
-        {/* Option 2: Spring Boot OAuth2 (Redirect) */}
         <div className="login-option">
-          <span>방법 2: Spring Boot OAuth2 (백엔드 연동)</span>
-          <button className="kakao-login-button-styled spring-button" onClick={handleSpringLogin}>
-             <div className="custom-kakao-button">
-               <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="" width="20"/>
-               <span>카카오로 시작하기 (Backend)</span>
-             </div>
+          <span>방법 2: Spring Boot OAuth2 리다이렉트</span>
+          <button
+            className="kakao-login-button-styled spring-button"
+            onClick={handleSpringLogin}
+          >
+            <div className="custom-kakao-button">
+              <img
+                src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"
+                alt=""
+                width="20"
+              />
+              <span>카카오로 시작하기 (Backend)</span>
+            </div>
           </button>
         </div>
       </div>
-      
-      <p className="signup-prompt">
-        계정이 없으신가요? <a href="#" className="signup-link">회원가입</a>
-      </p>
+
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
     </div>
   );
 };

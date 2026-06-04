@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import Profile from './components/Profile';
 import KakaoCallback from './components/KakaoCallback';
+import AuthResult from './components/AuthResult';
+import { clearStoredAuth } from './auth';
 import './App.css';
 
 function App() {
@@ -41,6 +43,8 @@ function App() {
   };
 
   const handleLogout = () => {
+    clearStoredAuth();
+
     // SDK logout
     if (window.Kakao && window.Kakao.Auth.getAccessToken()) {
       window.Kakao.Auth.logout(() => {
@@ -71,6 +75,8 @@ function App() {
             element={isLoggedIn ? <Profile onLogout={handleLogout} /> : <Login onSdkLoginSuccess={handleSdkLoginSuccess} />} 
           />
           <Route path="/login/oauth2/code/kakao" element={<KakaoCallback />} />
+          <Route path="/auth/success" element={<AuthResult />} />
+          <Route path="/login" element={<AuthResult />} />
         </Routes>
       </div>
     </Router>

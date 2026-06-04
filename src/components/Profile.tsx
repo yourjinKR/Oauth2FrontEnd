@@ -5,17 +5,17 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<KakaoUser | null>(null);
 
   useEffect(() => {
     if (window.Kakao && window.Kakao.Auth.getAccessToken()) {
       window.Kakao.API.request({
         url: '/v2/user/me',
-        success: (res: any) => {
+        success: (res: KakaoUser) => {
           console.log('User Profile:', res);
           setUser(res);
         },
-        fail: (error: any) => {
+        fail: (error: unknown) => {
           console.error('Failed to get user profile:', error);
         },
       });

@@ -1,31 +1,44 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { API_BASE_URL } from '../auth';
 
-const KakaoCallback: React.FC = () => {
-  const navigate = useNavigate();
+const KakaoCallback = () => {
+  const location = useLocation();
+  const [hasCallbackParams] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.has('code') && params.has('state');
+  });
 
   useEffect(() => {
-    // Spring Boot OAuth2 Login process:
-    // 1. User is redirected back to Frontend (this component) with a JSESSIONID or Token in cookies/headers
-    // 2. Or the backend redirects directly to '/' after successful login.
-    // Here we assume the backend handles the exchange and we just need to check the result.
-    
-    console.log('OAuth2 Callback handled by Spring Boot backend');
-    
-    // In a real scenario, you might check for a success flag in URL or a cookie
-    // For this demo, we assume success if we reached here
-    setTimeout(() => {
-      navigate('/');
-    }, 1500);
-  }, [navigate]);
+    if (hasCallbackParams) {
+      window.location.replace(
+        `${API_BASE_URL}/login/oauth2/code/kakao${location.search}`,
+      );
+    }
+  }, [hasCallbackParams, location.search]);
 
   return (
-    <div className="app-container">
-      <div className="login-card">
-        <h2>로그인 처리 중...</h2>
-        <p>잠시만 기다려 주세요.</p>
-        <div className="loading-spinner"></div>
-      </div>
+    <div className="login-card">
+      {hasCallbackParams ? (
+        <>
+          <div className="loading-spinner" />
+          <h2>OAuth2 콜백 전달 중...</h2>
+          <p className="result-message">
+            인가 코드를 Spring Security 백엔드로 전달하고 있습니다.
+          </p>
+        </>
+      ) : (
+        <>
+          <div className="status-badge failed">확인 필요</div>
+          <h2>OAuth2 콜백 정보가 없습니다.</h2>
+          <p className="result-message">
+            이 경로는 카카오가 프론트로 콜백한 경우에만 백엔드로 전달합니다.
+          </p>
+          <Link className="result-link" to="/">
+            로그인 테스트로 돌아가기
+          </Link>
+        </>
+      )}
     </div>
   );
 };

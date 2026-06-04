@@ -1,73 +1,35 @@
-# React + TypeScript + Vite
+# 소셜 로그인 테스트 페이지
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Kakao JavaScript SDK 로그인과 Spring Security OAuth2 로그인을 확인하는 로컬 테스트 페이지입니다.
 
-Currently, two official plugins are available:
+## 실행
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+기본 백엔드 주소는 `http://localhost:8080`입니다. 변경하려면 `.env`에 아래 값을 설정합니다.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```dotenv
+VITE_API_BASE_URL=http://localhost:8080
+VITE_KAKAO_JS_KEY=카카오_JavaScript_키
 ```
+
+## OAuth2 리다이렉트 흐름
+
+OAuth2의 `code`와 `state`는 Spring Security가 처리해야 하므로 카카오 콜백 URL은 아래 백엔드 주소를 유지합니다.
+
+```properties
+spring.security.oauth2.client.registration.kakao.redirect-uri=http://localhost:8080/login/oauth2/code/kakao
+```
+
+백엔드는 콜백 처리 성공/실패 후 이 테스트 페이지로 다시 이동하도록 로컬 설정이 필요합니다.
+
+```properties
+app.client-success-url=http://localhost:5173/auth/success
+app.client-error-url=http://localhost:5173/login?error=
+app.cors-urls=http://localhost:5173
+```
+
+정상 흐름은 `카카오 -> localhost:8080/login/oauth2/code/kakao -> localhost:5173/auth/success`입니다.
