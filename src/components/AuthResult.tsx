@@ -6,6 +6,7 @@ import {
   LOGIN_METHOD_STORAGE_KEY,
   type LoginMethod,
 } from '../auth';
+import { logAuthError, logAuthStep, logAuthToken } from '../authDebug';
 
 type VerificationStatus = 'checking' | 'success' | 'failed';
 
@@ -23,7 +24,19 @@ const AuthResult = () => {
   const displayMessage = errorCode ? `OAuth2 로그인 실패: ${errorCode}` : message;
 
   useEffect(() => {
+    logAuthStep('로그인 결과 페이지 진입', {
+      '현재 URL': window.location.href,
+      '로그인 방식': loginMethod,
+      'OAuth2 error code': errorCode,
+      'document.cookie': document.cookie || '(JavaScript에서 읽을 수 있는 쿠키 없음)',
+      설명:
+        loginMethod === 'oauth2'
+          ? 'OAuth2 서비스 accessToken은 HttpOnly 쿠키이므로 JavaScript console.log로 값을 읽을 수 없습니다. DevTools Application > Cookies에서 확인하세요.'
+          : 'SDK 로그인은 백엔드 accessToken을 sessionStorage에서 읽어 Authorization 헤더로 사용합니다.',
+    });
+
     if (errorCode) {
+      logAuthError('OAuth2 로그인 실패 리다이렉트', errorCode);
       return;
     }
 
@@ -35,10 +48,32 @@ const AuthResult = () => {
         headers.set('Authorization', `Bearer ${accessToken}`);
       }
 
+      logAuthToken('인증 확인에 사용할 백엔드 서비스 accessToken', accessToken);
+      logAuthStep('백엔드 인증 확인 API 요청', {
+        method: 'GET',
+        url: `${API_BASE_URL}/users/me/profile/all`,
+        credentials: 'include',
+        'Authorization 헤더 포함 여부': headers.has('Authorization'),
+        설명:
+          loginMethod === 'oauth2'
+            ? 'OAuth2 방식은 브라우저가 HttpOnly accessToken 쿠키를 자동 전송합니다.'
+            : 'SDK 방식은 sessionStorage의 accessToken을 Bearer 헤더로 전송합니다.',
+      });
+
       try {
         const response = await fetch(`${API_BASE_URL}/users/me/profile/all`, {
           credentials: 'include',
           headers,
+        });
+        const responseBody = await response
+          .clone()
+          .json()
+          .catch(() => '(JSON 응답 없음)');
+
+        logAuthStep('백엔드 인증 확인 API 응답', {
+          'HTTP status': response.status,
+          ok: response.ok,
+          '응답 body': responseBody,
         });
 
         if (!response.ok) {
@@ -52,6 +87,7 @@ const AuthResult = () => {
             : 'OAuth2 로그인과 백엔드 쿠키 인증이 정상적으로 완료되었습니다.',
         );
       } catch (error) {
+        logAuthError('백엔드 인증 확인 실패', error);
         setStatus('failed');
         setMessage(
           error instanceof TypeError
